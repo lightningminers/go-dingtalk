@@ -190,6 +190,201 @@ func (dtc *DingTalkClient) TopCorpMessageCorpconversationGetsendresult(agentId i
 }
 
 // 考勤排班信息按天全量查询接口
-func (dtc *DingTalkClient) TopSmartworkAttendsListschedule() {
+func (dtc *DingTalkClient) TopSmartworkAttendsListschedule(workDate string, offset int, size int) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method":    smartworkAttendsListschedule,
+		"work_date": workDate,
+		"offset":    offset,
+		"size":      size,
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
 
+// 获取考勤组列表详情
+func (dtc *DingTalkClient) TopSmartworkAttendsGetsimplegroups(offset int, size int) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method": smartworkAttendsGetsimplegroups,
+		"offset": offset,
+		"size":   size,
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
+
+// 获取多个用户的签到记录
+func (dtc *DingTalkClient) TopSmartworkCheckinRecordGet(info *SmartworkCheckinRecordGetRequest) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method":      smartworkCheckinRecordGet,
+		"userid_list": info.UserIDList,
+		"start_time":  info.StartTime,
+		"end_time":    info.EndTime,
+		"cursor":      info.Cursor,
+		"size":        info.Size,
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
+
+// 复制审批流
+func (dtc *DingTalkClient) TopSmartworkBpmsProcessCopy(info *SmartworkBpmsProcessCopyRequest) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method":       smartworkBpmsProcessCopy,
+		"agent_id":     info.AgentID,
+		"process_code": info.ProcessCode,
+	}
+	if info.BizCategoryID != "" {
+		general["biz_category_id"] = info.BizCategoryID
+	}
+	if info.ProcessName != "" {
+		general["process_name"] = info.ProcessName
+	}
+	if info.Description != "" {
+		general["description"] = info.Description
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
+
+// 更新审批流
+func (dtc *DingTalkClient) TopSmartworkBpmsProcessSync(info *SmartworkBpmsProcessSyncRequest) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method":              smartworkBpmsProcessSync,
+		"agent_id":            info.AgentID,
+		"src_process_code":    info.SrcProcessCode,
+		"target_process_code": info.TargetProcessCode,
+	}
+	if info.BizCategoryID != "" {
+		general["biz_category_id"] = info.BizCategoryID
+	}
+	if info.ProcessName != "" {
+		general["process_name"] = info.ProcessName
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
+
+// 发起审批实例
+func (dtc *DingTalkClient) TopSmartworkBpmsProcessinstanceCreate(info *SmartworkBpmsProcessinstanceCreateRequest) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method":             smartworkBpmsProcessinstanceCreate,
+		"process_code":       info.ProcessCode,
+		"originator_user_id": info.OriginatorUserID,
+		"dept_id":            info.DeptID,
+		"approvers":          info.Approvers,
+	}
+	if info.AgentID > 0 {
+		general["agent_id"] = info.AgentID
+	}
+	if len(info.CCList) > 0 {
+		general["cc_list"] = info.CCList
+	}
+	if len(info.CCPosition) > 0 {
+		general["cc_position"] = info.CCPosition
+	}
+	b, e := json.Marshal(info.FormComponentValueVo)
+	if e == nil {
+		general["form_component_values"] = string(b)
+	} else {
+		panic(e)
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
+
+// 获取审批实例列表
+func (dtc *DingTalkClient) TopSmartworkBpmsProcessinstanceList(info *SmartworkBpmsProcessinstanceListRequest) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method":       smartworkBpmsProcessinstanceList,
+		"process_code": info.ProcessCode,
+		"start_time":   info.StartTime,
+	}
+	if info.EndTime > 0 {
+		general["end_time"] = info.EndTime
+	}
+	if info.Size > 0 {
+		general["size"] = info.Size
+	}
+	if len(info.UserIDList) > 0 {
+		general["userid_list"] = info.UserIDList
+	}
+	if info.Cursor >= 0 {
+		general["cursor"] = info.Cursor
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
+
+// 添加企业外部联系人
+func (dtc *DingTalkClient) TopCorpExtcontactCreate(info *CorpExtcontactRequest) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method": corpExtcontactCreate,
+	}
+	b, e := json.Marshal(info)
+	if e == nil {
+		general["contace"] = string(b)
+	} else {
+		panic(e)
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
+
+// 更新外部联系人
+func (dtc *DingTalkClient) TopCorpExtcontactUpdate(info *CorpExtcontactRequest) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method": corpExtcontactUpdate,
+	}
+	b, e := json.Marshal(info)
+	if e == nil {
+		general["contace"] = string(b)
+	} else {
+		panic(e)
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
+
+// 获取外部联系人列表
+func (dtc *DingTalkClient) TopCorpExtcontactList(size int, offset int) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method": corpExtcontactList,
+		"size":   size,
+		"offset": offset,
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
+
+// 外部单个联系人详情
+func (dtc *DingTalkClient) TopCorpExtcontactGet(userID string) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method":  corpExtcontactGet,
+		"user_id": userID,
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
+}
+
+// 外部联系人标签列表
+func (dtc *DingTalkClient) TopCorpExtcontactListlabelgroups(size int, offset int) ([]byte, error) {
+	var data []byte
+	general := TopMapRequest{
+		"method": corpExtcontactListlabelgroups,
+		"size":   size,
+		"offset": offset,
+	}
+	err := dtc.httpTOP(general, &data)
+	return data, err
 }

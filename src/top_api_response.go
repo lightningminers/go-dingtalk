@@ -172,3 +172,86 @@ type TopCMCGResult struct {
 }
 
 // end --- 获取异步向企业会话发送消息的结果
+
+// start --- 获取多个用户的签到记录
+
+type SmartworkCheckinRecordGetRequest struct {
+	UserIDList []string `json:"userid_list"`
+	StartTime  int64    `json:"start_time"`
+	EndTime    int64    `json:"end_time"`
+	Cursor     int      `json:"cursor"`
+	Size       int      `json:"size"`
+}
+
+// end --- 获取多个用户的签到记录
+
+// start --- 复制审批流
+
+type SmartworkBpmsProcessCopyRequest struct {
+	AgentID       int64  `json:"agent_id"`
+	ProcessCode   string `json:"process_code"`
+	BizCategoryID string `json:"biz_category_id"`
+	ProcessName   string `json:"process_name"`
+	Description   string `json:"description"`
+}
+
+// end --- 复制审批流
+
+// start --- 更新审批流
+
+type SmartworkBpmsProcessSyncRequest struct {
+	AgentID           int64  `json:"agent_id"`
+	SrcProcessCode    string `json:"src_process_code"`
+	TargetProcessCode string `json:"target_process_code"`
+	BizCategoryID     string `json:"biz_category_id"`
+	ProcessName       string `json:"process_name"`
+}
+
+// end ---
+
+// start --- 发起审批实例
+
+type SmartworkBpmsProcessinstanceCreateRequest struct {
+	AgentID              int64               `json:"agent_id"`
+	ProcessCode          string              `json:"process_code"`
+	OriginatorUserID     string              `json:"originator_user_id"`
+	DeptID               int                 `json:"dept_id"`
+	Approvers            []string            `json:"approvers"`
+	CCList               []string            `json:"cc_list"`
+	CCPosition           []string            `json:"cc_position"`
+	FormComponentValueVo []map[string]string `json:"form_component_values"`
+}
+
+// end ---
+
+// start --- 获取审批实例列表
+
+type SmartworkBpmsProcessinstanceListRequest struct {
+	ProcessCode string   `json:"process_code"`
+	StartTime   int64    `json:"start_time"`
+	EndTime     int64    `json:"end_time"`
+	Size        int      `json:"size"`
+	Cursor      int      `json:"cursor"`
+	UserIDList  []string `json:"userid_list"`
+}
+
+// end --- 获取审批实例列表
+
+// start --- 添加外部联系人|更新外部联系人
+
+type CorpExtcontactRequest struct {
+	Title          string   `json:"title,omitempty"`
+	LabelIDs       []int    `json:"label_ids"`
+	ShareDeptIDs   []int    `json:"share_dept_ids,omitempty"`
+	Address        string   `json:"address,omitempty"`
+	Remark         string   `json:"remark,omitempty"`
+	FollowerUserID string   `json:"follower_user_id"`
+	Name           string   `json:"name"`
+	UserID         string   `json:"user_id,omitempty"`
+	StateCode      string   `json:"state_code"`
+	CompanyName    string   `json:"company_name,omitempty"`
+	ShareUserIDs   []string `json:"share_user_ids,omitempty"`
+	Mobile         string   `json:"mobile"`
+}
+
+// end --- 添加外部联系人|更新外部联系人
