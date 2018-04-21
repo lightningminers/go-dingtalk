@@ -32,7 +32,11 @@ $ go get -u github.com/icepy/go-dingtalk
 
 # Guide
 
-[Document]()
+```bash
+$ npm i -g vuepress
+$ cd docs
+$ vuepress dev
+```
 
 # Example
 
