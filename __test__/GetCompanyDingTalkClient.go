@@ -13,7 +13,7 @@ func GetCompanyDingTalkClient() *dingtalk.DingTalkClient {
 	SSOSecret := os.Getenv("SSOSecret")
 	SNSAppID := os.Getenv("SNSAppID")
 	SNSSecret := os.Getenv("SNSSecret")
-	config := &dingtalk.DTCompanyConfig{
+	config := &dingtalk.DTConfig{
 		CorpID:     CorpID,
 		CorpSecret: CorpSecret,
 		AgentID:    AgentID,

@@ -28,6 +28,13 @@ type SNSAccessTokenResponse struct {
 	Created        int64
 }
 
+type SuiteAccessTokenResponse struct {
+	OpenAPIResponse
+	SuiteAccessToken string `json:"suite_access_token"`
+	Expires          int    `json:"expires_in"`
+	Created          int64
+}
+
 type TicketResponse struct {
 	OpenAPIResponse
 	Ticket  string `json:"ticket"`
@@ -79,6 +86,14 @@ func (e *SNSAccessTokenResponse) ExpiresIn() int {
 	return e.Expires
 }
 
+func (e *SuiteAccessTokenResponse) CreatedAt() int64 {
+	return e.Created
+}
+
+func (e *SuiteAccessTokenResponse) ExpiresIn() int {
+	return e.Expires
+}
+
 // 刷新企业获取的access_token
 func (dtc *DingTalkClient) RefreshCompanyAccessToken() error {
 	var data AccessTokenResponse
@@ -89,8 +104,8 @@ func (dtc *DingTalkClient) RefreshCompanyAccessToken() error {
 		return nil
 	}
 	params := url.Values{}
-	params.Add("corpid", dtc.CompanyConfig.CorpID)
-	params.Add("corpsecret", dtc.CompanyConfig.CorpSecret)
+	params.Add("corpid", dtc.DTConfig.CorpID)
+	params.Add("corpsecret", dtc.DTConfig.CorpSecret)
 	err = dtc.httpRPC("gettoken", params, nil, &data)
 	if err == nil {
 		dtc.AccessToken = data.AccessToken
@@ -111,8 +126,8 @@ func (dtc *DingTalkClient) RefreshCompanySSOAccessToken() error {
 		return nil
 	}
 	params := url.Values{}
-	params.Add("corpid", dtc.CompanyConfig.CorpID)
-	params.Add("corpsecret", dtc.CompanyConfig.SSOSecret)
+	params.Add("corpid", dtc.DTConfig.CorpID)
+	params.Add("corpsecret", dtc.DTConfig.SSOSecret)
 	err = dtc.httpSSO("sso/gettoken", params, nil, &data)
 	if err == nil {
 		dtc.SSOAccessToken = data.SSOAccessToken
@@ -133,14 +148,38 @@ func (dtc *DingTalkClient) RefreshSNSAccessToken() error {
 		return nil
 	}
 	params := url.Values{}
-	params.Add("appid", dtc.CompanyConfig.SNSAppID)
-	params.Add("appsecret", dtc.CompanyConfig.SNSSecret)
+	params.Add("appid", dtc.DTConfig.SNSAppID)
+	params.Add("appsecret", dtc.DTConfig.SNSSecret)
 	err = dtc.httpSNS("sns/gettoken", params, nil, &data)
 	if err == nil {
 		dtc.SNSAccessToken = data.SNSAccessToken
 		data.Expires = data.Expires | 7200
 		data.Created = time.Now().Unix()
 		err = dtc.SNSAccessTokenCache.Set(&data)
+	}
+	return err
+}
+
+// 刷新 isv suite_access_token
+func (dtc *DingTalkClient) RefreshSuiteAccessToken() error {
+	var data SuiteAccessTokenResponse
+	err := dtc.SuiteAccessTokenCache.Get(&data)
+	if err == nil {
+		dtc.SuiteAccessToken = data.SuiteAccessToken
+		fmt.Printf("Get suite_access_token To Local Cache=%s\n", dtc.SuiteAccessToken)
+		return nil
+	}
+	info := map[string]string{
+		"suite_key":    dtc.DTConfig.SuiteKey,
+		"suite_secret": dtc.DTConfig.SuiteSecret,
+		"suite_ticket": dtc.DTConfig.SuiteTicket,
+	}
+	err = dtc.httpSNS("service/get_suite_token", nil, info, &data)
+	if err == nil {
+		dtc.SuiteAccessToken = data.SuiteAccessToken
+		data.Expires = data.Expires | 7200
+		data.Created = time.Now().Unix()
+		err = dtc.SuiteAccessTokenCache.Set(&data)
 	}
 	return err
 }
@@ -167,9 +206,9 @@ func (dtc *DingTalkClient) GetConfig(nonceStr string, timestamp string, url stri
 	config = map[string]string{
 		"url":       url,
 		"nonceStr":  nonceStr,
-		"agentId":   dtc.CompanyConfig.AgentID,
+		"agentId":   dtc.DTConfig.AgentID,
 		"timeStamp": timestamp,
-		"corpId":    dtc.CompanyConfig.CorpID,
+		"corpId":    dtc.DTConfig.CorpID,
 		"ticket":    ticket,
 		"signature": sign(ticket, nonceStr, timestamp, url),
 	}

@@ -29,18 +29,18 @@ import (
  */
 
 type DingTalkClient struct {
-	CompanyConfig       *DTCompanyConfig
-	MiniConfig          *DTMiniConfig
-	IsvConfig           *DTIsvConfig
-	TopConfig           *TopConfig
-	HTTPClient          *http.Client
-	AccessToken         string
-	SSOAccessToken      string
-	SNSAccessToken      string
-	AccessTokenCache    Cache
-	TicketCache         Cache
-	SSOAccessTokenCache Cache
-	SNSAccessTokenCache Cache
+	DTConfig              *DTConfig
+	TopConfig             *TopConfig
+	HTTPClient            *http.Client
+	AccessToken           string
+	SSOAccessToken        string
+	SNSAccessToken        string
+	SuiteAccessToken      string
+	AccessTokenCache      Cache
+	TicketCache           Cache
+	SSOAccessTokenCache   Cache
+	SNSAccessTokenCache   Cache
+	SuiteAccessTokenCache Cache
 }
 
 type TopConfig struct {
@@ -51,28 +51,23 @@ type TopConfig struct {
 	TopSignMethod string
 }
 
-type DTMiniConfig struct {
-	TopConfig
-}
-
-type DTIsvConfig struct {
-	TopConfig
-}
-
-type DTCompanyConfig struct {
+type DTConfig struct {
 	TopConfig
 	CorpID        string
 	CorpSecret    string
 	AgentID       string
+	SuiteKey      string
+	SuiteSecret   string
+	SuiteTicket   string
 	ChannelSecret string
 	SSOSecret     string
 	SNSAppID      string
 	SNSSecret     string
 }
 
-func NewDingTalkCompanyClient(config *DTCompanyConfig) *DingTalkClient {
+func NewDingTalkClient(devType string, config *DTConfig) *DingTalkClient {
 	c := &DingTalkClient{
-		CompanyConfig: &DTCompanyConfig{},
+		DTConfig: &DTConfig{},
 		HTTPClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
@@ -83,10 +78,11 @@ func NewDingTalkCompanyClient(config *DTCompanyConfig) *DingTalkClient {
 			TopSimplify:   topSimplify,
 			TopV:          topV,
 		},
-		AccessTokenCache:    NewFileCache(".company_access_token_file"),
-		TicketCache:         NewFileCache(".company_ticket_file"),
-		SSOAccessTokenCache: NewFileCache(".company_sso_acess_token_file"),
-		SNSAccessTokenCache: NewFileCache(".company_sns_access_token_file"),
+		AccessTokenCache:      NewFileCache("." + devType + "_access_token_file"),
+		TicketCache:           NewFileCache("." + devType + "_ticket_file"),
+		SSOAccessTokenCache:   NewFileCache("." + devType + "_sso_acess_token_file"),
+		SNSAccessTokenCache:   NewFileCache("." + devType + "_sns_access_token_file"),
+		SuiteAccessTokenCache: NewFileCache("." + devType + "_suite_access_token_file"),
 	}
 	if config != nil {
 		if config.TopFormat != "" {
@@ -104,16 +100,26 @@ func NewDingTalkCompanyClient(config *DTCompanyConfig) *DingTalkClient {
 		if config.TopSimplify {
 			c.TopConfig.TopSimplify = config.TopSimplify
 		}
-		c.CompanyConfig.CorpID = config.CorpID
-		c.CompanyConfig.AgentID = config.AgentID
-		c.CompanyConfig.CorpSecret = config.CorpSecret
-		c.CompanyConfig.SSOSecret = config.SSOSecret
+		c.DTConfig.CorpID = config.CorpID
+		c.DTConfig.AgentID = config.AgentID
+		c.DTConfig.CorpSecret = config.CorpSecret
+		c.DTConfig.SSOSecret = config.SSOSecret
+		c.DTConfig.ChannelSecret = config.ChannelSecret
+		c.DTConfig.SNSAppID = config.SNSAppID
+		c.DTConfig.SNSSecret = config.SNSSecret
+		c.DTConfig.SuiteKey = config.SuiteKey
+		c.DTConfig.SuiteSecret = config.SuiteSecret
+		c.DTConfig.SuiteTicket = config.SuiteTicket
 	}
 	return c
 }
 
-func NewDingTalkISVClient() {
+func NewDingTalkISVClient(config *DTConfig) *DingTalkClient {
+	return NewDingTalkClient("isv", config)
+}
 
+func NewDingTalkCompanyClient(config *DTConfig) *DingTalkClient {
+	return NewDingTalkClient("company", config)
 }
 
 func NewDingTalkMiniClient() {
