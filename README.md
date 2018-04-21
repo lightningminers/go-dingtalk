@@ -82,8 +82,7 @@ func getCompanyDingTalkClient() *dingtalk.DingTalkClient {
 # 打赏
 
 <div align="left">
-  <img width="100" heigth="100" src="docs/weixin.png" style="margin-right:10px">
-	<img width="100" heigth="100" src="docs/ali.png">
+  <img width="100" heigth="100" src="docs/weixin.png">
 </div>
 
 # License
