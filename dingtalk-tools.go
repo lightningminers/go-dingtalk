@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"./src"
 )
 
 func main() {
@@ -17,4 +19,9 @@ func main() {
 			os.Setenv("RUNNER_CONFIG_PATH", *configPath)
 		}
 	}
+
+	fmt.Printf("Current SDK VERSION=%s\n", dingtalk.VERSION)
+	fmt.Printf("Current SDK OAPIURL=%s\n", dingtalk.OAPIURL)
+	fmt.Printf("Current SDK TOPAPIURL=%s\n", dingtalk.TOPAPIURL)
+
 }
