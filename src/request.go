@@ -20,14 +20,29 @@ import (
 )
 
 func (dtc *DingTalkClient) httpRPC(path string, params url.Values, requestData interface{}, responseData Unmarshallable) error {
-	if dtc.AccessToken != "" {
-		if params == nil {
-			params = url.Values{}
-		}
-		if params.Get("access_token") == "" {
-			params.Set("access_token", dtc.AccessToken)
+	if dtc.DevType == "company" {
+		if dtc.AccessToken != "" {
+			if params == nil {
+				params = url.Values{}
+			}
+			if params.Get("access_token") == "" {
+				params.Set("access_token", dtc.AccessToken)
+			}
 		}
 	}
+	// if dtc.DevType == "isv" {
+	// 	switch v := isvGetCInfo.(type) {
+	// 	case *DTIsvGetCompanyInfo:
+	// 		if v.AuthAccessToken != "" {
+	// 			if params == nil {
+	// 				params = url.Values{}
+	// 			}
+	// 			if params.Get("access_token") == "" {
+	// 				params.Set("access_token", v.AuthAccessToken)
+	// 			}
+	// 		}
+	// 	}
+	// }
 	return dtc.httpRequest("oapi", path, params, requestData, responseData)
 }
 
@@ -55,6 +70,10 @@ func (dtc *DingTalkClient) httpSSO(path string, params url.Values, requestData i
 	return dtc.httpRequest("oapi", path, params, requestData, responseData)
 }
 
+func (dtc *DingTalkClient) httpIsv() {
+
+}
+
 func (dtc *DingTalkClient) httpTOP(requestData interface{}, responseData interface{}) error {
 	var params []string
 	var paramsJoin string
@@ -62,7 +81,9 @@ func (dtc *DingTalkClient) httpTOP(requestData interface{}, responseData interfa
 	var cipherString string
 	if body, ok := requestData.(TopMapRequest); ok {
 		body["sign_method"] = dtc.TopConfig.TopSignMethod
-		body["session"] = dtc.AccessToken
+		if dtc.DevType == "company" {
+			body["session"] = dtc.AccessToken
+		}
 		body["format"] = dtc.TopConfig.TopFormat
 		body["v"] = dtc.TopConfig.TopV
 		timestamp := time.Now().Unix()

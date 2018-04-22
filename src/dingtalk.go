@@ -2,6 +2,7 @@ package dingtalk
 
 import (
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -41,6 +42,8 @@ type DingTalkClient struct {
 	SSOAccessTokenCache   Cache
 	SNSAccessTokenCache   Cache
 	SuiteAccessTokenCache Cache
+	DevType               string
+	Locker                *sync.Mutex
 }
 
 type TopConfig struct {
@@ -65,6 +68,12 @@ type DTConfig struct {
 	SNSSecret     string
 }
 
+type DTIsvGetCompanyInfo struct {
+	AuthCorpID      string
+	PermanentCode   string
+	AuthAccessToken string
+}
+
 func NewDingTalkClient(devType string, config *DTConfig) *DingTalkClient {
 	c := &DingTalkClient{
 		DTConfig: &DTConfig{},
@@ -83,6 +92,8 @@ func NewDingTalkClient(devType string, config *DTConfig) *DingTalkClient {
 		SSOAccessTokenCache:   NewFileCache("." + devType + "_sso_acess_token_file"),
 		SNSAccessTokenCache:   NewFileCache("." + devType + "_sns_access_token_file"),
 		SuiteAccessTokenCache: NewFileCache("." + devType + "_suite_access_token_file"),
+		Locker:                new(sync.Mutex),
+		DevType:               devType,
 	}
 	if config != nil {
 		if config.TopFormat != "" {

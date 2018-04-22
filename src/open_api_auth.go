@@ -96,11 +96,13 @@ func (e *SuiteAccessTokenResponse) ExpiresIn() int {
 
 // 刷新企业获取的access_token
 func (dtc *DingTalkClient) RefreshCompanyAccessToken() error {
+	dtc.Locker.Lock()
 	var data AccessTokenResponse
 	err := dtc.AccessTokenCache.Get(&data)
 	if err == nil {
 		dtc.AccessToken = data.AccessToken
 		fmt.Printf("Get access_token To Local Cache=%s\n", dtc.AccessToken)
+		dtc.Locker.Unlock()
 		return nil
 	}
 	params := url.Values{}
@@ -112,17 +114,20 @@ func (dtc *DingTalkClient) RefreshCompanyAccessToken() error {
 		data.Expires = data.Expires | 7200
 		data.Created = time.Now().Unix()
 		err = dtc.AccessTokenCache.Set(&data)
+		dtc.Locker.Unlock()
 	}
 	return err
 }
 
 // 刷新企业获取的sso_access_token
-func (dtc *DingTalkClient) RefreshCompanySSOAccessToken() error {
+func (dtc *DingTalkClient) RefreshSSOAccessToken() error {
+	dtc.Locker.Lock()
 	var data SSOAccessTokenResponse
 	err := dtc.SSOAccessTokenCache.Get(&data)
 	if err == nil {
 		dtc.SSOAccessToken = data.SSOAccessToken
 		fmt.Printf("Get sso_access_token To Local Cache=%s\n", dtc.SSOAccessToken)
+		dtc.Locker.Unlock()
 		return nil
 	}
 	params := url.Values{}
@@ -134,17 +139,20 @@ func (dtc *DingTalkClient) RefreshCompanySSOAccessToken() error {
 		data.Expires = data.Expires | 7200
 		data.Created = time.Now().Unix()
 		err = dtc.SSOAccessTokenCache.Set(&data)
+		dtc.Locker.Unlock()
 	}
 	return err
 }
 
 // 刷新 SNS access_token
 func (dtc *DingTalkClient) RefreshSNSAccessToken() error {
+	dtc.Locker.Lock()
 	var data SNSAccessTokenResponse
 	err := dtc.SNSAccessTokenCache.Get(&data)
 	if err == nil {
 		dtc.SNSAccessToken = data.SNSAccessToken
 		fmt.Printf("Get sns_access_token To Local Cache=%s\n", dtc.SNSAccessToken)
+		dtc.Locker.Unlock()
 		return nil
 	}
 	params := url.Values{}
@@ -156,17 +164,20 @@ func (dtc *DingTalkClient) RefreshSNSAccessToken() error {
 		data.Expires = data.Expires | 7200
 		data.Created = time.Now().Unix()
 		err = dtc.SNSAccessTokenCache.Set(&data)
+		dtc.Locker.Unlock()
 	}
 	return err
 }
 
 // 刷新 isv suite_access_token
 func (dtc *DingTalkClient) RefreshSuiteAccessToken() error {
+	dtc.Locker.Lock()
 	var data SuiteAccessTokenResponse
 	err := dtc.SuiteAccessTokenCache.Get(&data)
 	if err == nil {
 		dtc.SuiteAccessToken = data.SuiteAccessToken
 		fmt.Printf("Get suite_access_token To Local Cache=%s\n", dtc.SuiteAccessToken)
+		dtc.Locker.Unlock()
 		return nil
 	}
 	info := map[string]string{
@@ -180,21 +191,25 @@ func (dtc *DingTalkClient) RefreshSuiteAccessToken() error {
 		data.Expires = data.Expires | 7200
 		data.Created = time.Now().Unix()
 		err = dtc.SuiteAccessTokenCache.Set(&data)
+		dtc.Locker.Unlock()
 	}
 	return err
 }
 
 // 获取Ticket
 func (dtc *DingTalkClient) GetJSAPITicket() (ticket string, err error) {
+	dtc.Locker.Lock()
 	var data TicketResponse
 	err = dtc.TicketCache.Get(&data)
 	if err == nil {
+		dtc.Locker.Unlock()
 		return data.Ticket, err
 	}
 	err = dtc.httpRPC("get_jsapi_ticket", nil, nil, &data)
 	if err == nil {
 		ticket = data.Ticket
 		dtc.TicketCache.Set(&data)
+		dtc.Locker.Unlock()
 	}
 	return ticket, err
 }
