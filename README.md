@@ -20,22 +20,27 @@ DingTalk Golang SDK https://github.com/icepy
 - Test download file
 
 ```bash
-$ cd __test__
-$ go test
+~ ᐅ cd __test__
+~ ᐅ go test
 ```
 
 # Install
 
 ```bash
-$ go get -u github.com/icepy/go-dingtalk
+~ ᐅ go get -u github.com/icepy/go-dingtalk
+~ ᐅ go-dingtalk
+Current SDK VERSION=0.1
+Current SDK OAPIURL=https://oapi.dingtalk.com/
+Current SDK TOPAPIURL=https://eco.taobao.com/router/rest
+~ ᐅ
 ```
 
 # Guide
 
 ```bash
-$ npm i -g vuepress
-$ cd docs
-$ vuepress dev
+~ ᐅ npm i -g vuepress
+~ ᐅ cd docs
+~ ᐅ vuepress dev
 ```
 
 # Example
