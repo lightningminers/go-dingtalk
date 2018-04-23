@@ -42,6 +42,54 @@ type TicketResponse struct {
 	Created int64
 }
 
+type GetPermanentCodeResponse struct {
+	OpenAPIResponse
+	PermanentCode   string       `json:"permanent_code"`
+	ChPermanentCode string       `json:"ch_permanent_code"`
+	AuthCorpInfo    AuthCorpInfo `json:"auth_corp_info"`
+}
+
+type AuthCorpInfo struct {
+	CorpID   string `json:"corpid"`
+	CorpName string `json:"corp_name"`
+}
+
+type ActivateSuiteResponse struct {
+	OpenAPIResponse
+}
+
+type GetCorpAccessTokenResponse struct {
+	OpenAPIResponse
+	AccessToken string `json:"access_token"`
+	Expires     int    `json:"expires_in"`
+}
+
+type GetCompanyInfoResponse struct {
+	OpenAPIResponse
+	AuthCorpInfo    GCIRAuthCorpInfo `json:"auth_corp_info"`
+	AuthUserInfo    GCIRAuthUserInfo `json:"auth_user_info"`
+	AuthInfo        interface{}      `json:"auth_info"`
+	ChannelAuthInfo interface{}      `json:"channel_auth_info"`
+}
+
+type GCIRAuthCorpInfo struct {
+	CorpLogoURL     string `json:"corp_logo_url"`
+	CorpName        string `json:"corp_name"`
+	CorpID          string `json:"corpid"`
+	Industry        string `json:"industry"`
+	InviteCode      string `json:"invite_code"`
+	LicenseCode     string `json:"license_code"`
+	AuthChannel     string `json:"auth_channel"`
+	AuthChannelType string `json:"auth_channel_type"`
+	IsAuthenticated bool   `json:"is_authenticated"`
+	AuthLevel       int    `json:"auth_level"`
+	InviteURL       string `json:"invite_url"`
+}
+
+type GCIRAuthUserInfo struct {
+	UserID string `json:"userId"`
+}
+
 type ScopesResponse struct {
 	OpenAPIResponse
 	AuthUserField  []string
@@ -241,5 +289,62 @@ func sign(ticket string, nonceStr string, timeStamp string, url string) string {
 func (dtc *DingTalkClient) GetAuthScopes() (ScopesResponse, error) {
 	var data ScopesResponse
 	err := dtc.httpRPC("auth/scopes", nil, nil, &data)
+	return data, err
+}
+
+// 获取企业授权的永久授权码
+func (dtc *DingTalkClient) IsvGetPermanentCode(tmpAuthCode string) (GetPermanentCodeResponse, error) {
+	var data GetPermanentCodeResponse
+	params := url.Values{}
+	params.Add("suite_access_token", dtc.SuiteAccessToken)
+	requestData := map[string]string{
+		"tmp_auth_code": tmpAuthCode,
+	}
+	err := dtc.httpRPC("service/get_permanent_code", params, requestData, &data)
+	return data, err
+}
+
+// 激活套件
+func (dtc *DingTalkClient) IsvActivateSuite(authCorpID string, permanentCode string) (ActivateSuiteResponse, error) {
+	var data ActivateSuiteResponse
+	params := url.Values{}
+	params.Add("suite_access_token", dtc.SuiteAccessToken)
+	requestData := map[string]string{
+		"suite_key":      dtc.DTConfig.SuiteKey,
+		"auth_corpid":    authCorpID,
+		"permanent_code": permanentCode,
+	}
+	err := dtc.httpRPC("service/activate_suite", params, requestData, &data)
+	return data, err
+}
+
+// 获取企业授权的凭证
+func (dtc *DingTalkClient) IsvGetCorpAccessToken(authCorpID string, permanentCode string) (GetCorpAccessTokenResponse, error) {
+	var data GetCorpAccessTokenResponse
+	params := url.Values{}
+	params.Add("suite_access_token", dtc.SuiteAccessToken)
+	requestData := map[string]string{
+		"auth_corpid":    authCorpID,
+		"permanent_code": permanentCode,
+	}
+	err := dtc.httpRPC("service/get_corp_token", params, requestData, &data)
+	return data, err
+}
+
+// 直接获取企业授权的凭证
+func (dtc *DingTalkClient) IsvGetCAT(tmpAuthCode string) {
+
+}
+
+// 获取企业的基本信息
+func (dtc *DingTalkClient) IsvGetCompanyInfo(authCorpID string) (GetCompanyInfoResponse, error) {
+	var data GetCompanyInfoResponse
+	params := url.Values{}
+	params.Add("suite_access_token", dtc.SuiteAccessToken)
+	requestData := map[string]string{
+		"auth_corpid": authCorpID,
+		"suite_key":   dtc.DTConfig.SuiteKey,
+	}
+	err := dtc.httpRPC("service/get_auth_info", params, requestData, &data)
 	return data, err
 }
