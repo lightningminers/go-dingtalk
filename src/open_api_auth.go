@@ -295,39 +295,33 @@ func (dtc *DingTalkClient) GetAuthScopes() (ScopesResponse, error) {
 // 获取企业授权的永久授权码
 func (dtc *DingTalkClient) IsvGetPermanentCode(tmpAuthCode string) (GetPermanentCodeResponse, error) {
 	var data GetPermanentCodeResponse
-	params := url.Values{}
-	params.Add("suite_access_token", dtc.SuiteAccessToken)
 	requestData := map[string]string{
 		"tmp_auth_code": tmpAuthCode,
 	}
-	err := dtc.httpRPC("service/get_permanent_code", params, requestData, &data)
+	err := dtc.httpRPC("service/get_permanent_code", nil, requestData, &data)
 	return data, err
 }
 
 // 激活套件
 func (dtc *DingTalkClient) IsvActivateSuite(authCorpID string, permanentCode string) (ActivateSuiteResponse, error) {
 	var data ActivateSuiteResponse
-	params := url.Values{}
-	params.Add("suite_access_token", dtc.SuiteAccessToken)
 	requestData := map[string]string{
 		"suite_key":      dtc.DTConfig.SuiteKey,
 		"auth_corpid":    authCorpID,
 		"permanent_code": permanentCode,
 	}
-	err := dtc.httpRPC("service/activate_suite", params, requestData, &data)
+	err := dtc.httpRPC("service/activate_suite", nil, requestData, &data)
 	return data, err
 }
 
 // 获取企业授权的凭证
 func (dtc *DingTalkClient) IsvGetCorpAccessToken(authCorpID string, permanentCode string) (GetCorpAccessTokenResponse, error) {
 	var data GetCorpAccessTokenResponse
-	params := url.Values{}
-	params.Add("suite_access_token", dtc.SuiteAccessToken)
 	requestData := map[string]string{
 		"auth_corpid":    authCorpID,
 		"permanent_code": permanentCode,
 	}
-	err := dtc.httpRPC("service/get_corp_token", params, requestData, &data)
+	err := dtc.httpRPC("service/get_corp_token", nil, requestData, &data)
 	return data, err
 }
 
@@ -339,12 +333,10 @@ func (dtc *DingTalkClient) IsvGetCAT(tmpAuthCode string) {
 // 获取企业的基本信息
 func (dtc *DingTalkClient) IsvGetCompanyInfo(authCorpID string) (GetCompanyInfoResponse, error) {
 	var data GetCompanyInfoResponse
-	params := url.Values{}
-	params.Add("suite_access_token", dtc.SuiteAccessToken)
 	requestData := map[string]string{
 		"auth_corpid": authCorpID,
 		"suite_key":   dtc.DTConfig.SuiteKey,
 	}
-	err := dtc.httpRPC("service/get_auth_info", params, requestData, &data)
+	err := dtc.httpRPC("service/get_auth_info", nil, requestData, &data)
 	return data, err
 }

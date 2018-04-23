@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-func (dtc *DingTalkClient) httpRPC(path string, params url.Values, requestData interface{}, responseData Unmarshallable) error {
+func (dtc *DingTalkClient) httpRPC(path string, params url.Values, requestData interface{}, responseData Unmarshallable, isvGetCInfo ...interface{}) error {
 	if dtc.DevType == "company" {
 		if dtc.AccessToken != "" {
 			if params == nil {
@@ -30,19 +30,34 @@ func (dtc *DingTalkClient) httpRPC(path string, params url.Values, requestData i
 			}
 		}
 	}
-	// if dtc.DevType == "isv" {
-	// 	switch v := isvGetCInfo.(type) {
-	// 	case *DTIsvGetCompanyInfo:
-	// 		if v.AuthAccessToken != "" {
-	// 			if params == nil {
-	// 				params = url.Values{}
-	// 			}
-	// 			if params.Get("access_token") == "" {
-	// 				params.Set("access_token", v.AuthAccessToken)
-	// 			}
-	// 		}
-	// 	}
-	// }
+	if dtc.DevType == "isv" {
+		cur := isvGetCInfo[0]
+		switch v := cur.(type) {
+		case *DTIsvGetCompanyInfo:
+			switch path {
+			case "service/get_permanent_code", "service/activate_suite", "service/get_corp_token", "service/get_auth_info":
+				if dtc.SuiteAccessToken != "" {
+					if params == nil {
+						params = url.Values{}
+					}
+					if params.Get("suite_access_token") == "" {
+						params.Set("suite_access_token", dtc.SuiteAccessToken)
+					}
+				}
+			default:
+				if v.AuthAccessToken != "" {
+					if params == nil {
+						params = url.Values{}
+					}
+					if params.Get("access_token") == "" {
+						params.Set("access_token", v.AuthAccessToken)
+					}
+				}
+			}
+		default:
+			panic(errors.New("ERROR: *DTIsvGetCompanyInfo Error"))
+		}
+	}
 	return dtc.httpRequest("oapi", path, params, requestData, responseData)
 }
 
@@ -68,10 +83,6 @@ func (dtc *DingTalkClient) httpSSO(path string, params url.Values, requestData i
 		}
 	}
 	return dtc.httpRequest("oapi", path, params, requestData, responseData)
-}
-
-func (dtc *DingTalkClient) httpIsv() {
-
 }
 
 func (dtc *DingTalkClient) httpTOP(requestData interface{}, responseData interface{}) error {

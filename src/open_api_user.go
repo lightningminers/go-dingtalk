@@ -7,22 +7,22 @@ import (
 
 type UserIdResponse struct {
 	OpenAPIResponse
-	UserId   string `json:"userid"`
-	DeviceId string `json:"deviceId"`
+	UserID   string `json:"userid"`
+	DeviceID string `json:"deviceId"`
 	IsSys    bool   `json:"is_sys"`
 	SysLevel int    `json:"sys_level"`
 }
 
 type UserIdByUnionIdResponse struct {
 	OpenAPIResponse
-	UserId      string `json:"userid"`
+	UserID      string `json:"userid"`
 	ContactType int    `json:"contactType"`
 }
 
 type UserInfoResponse struct {
 	OpenAPIResponse
-	UserId          string `json:"userid"`
-	OpenId          string `json:"openid"`
+	UserID          string `json:"userid"`
+	OpenID          string `json:"openid"`
 	Name            string
 	Tel             string
 	WorkPlace       string
@@ -33,8 +33,8 @@ type UserInfoResponse struct {
 	Active          bool
 	IsAdmin         bool
 	IsBoos          bool
-	DingId          string
-	UnionId         string
+	DingID          string
+	UnionID         string
 	IsHide          bool
 	Department      []int
 	Position        string
@@ -49,7 +49,7 @@ type UserInfoResponse struct {
 }
 
 type Roles struct {
-	Id        int
+	ID        int `json:"id"`
 	Name      string
 	GroupName string
 }
@@ -61,7 +61,7 @@ type UserSimpleListResponse struct {
 }
 
 type USimpleList struct {
-	UserId string
+	UserID string
 	Name   string
 }
 
@@ -72,10 +72,10 @@ type UserListResponse struct {
 }
 
 type UDetailedList struct {
-	UserId     string `json:"userid"`
+	UserID     string `json:"userid"`
 	Order      int
-	DingId     string
-	UnionId    string
+	DingID     string
+	UnionID    string
 	Mobile     string
 	Tel        string
 	WorkPlace  string
@@ -100,7 +100,7 @@ type UserAdminListResponse struct {
 }
 
 type Admins struct {
-	UserId   string `json:"userid"`
+	UserID   string `json:"userid"`
 	SysLevel int    `json:"sys_level"`
 }
 
@@ -111,11 +111,11 @@ type UserCanAccessMicroappResponse struct {
 
 type UserCreateResponse struct {
 	OpenAPIResponse
-	UserId string
+	UserID string
 }
 
 type UserCreateRequest struct {
-	UserId       string      `json:"userid,omitempty"`
+	UserID       string      `json:"userid,omitempty"`
 	Name         string      `json:"name"`
 	OrderInDepts string      `json:"orderInDepts,omitempty"`
 	Department   []int       `json:"department"`
@@ -138,7 +138,7 @@ type UserUpdateResponse struct {
 
 type UserUpdateRequest struct {
 	Lang         string      `json:"lang,omitempty"`
-	UserId       string      `json:"userid"`
+	UserID       string      `json:"userid"`
 	Name         string      `json:"name"`
 	OrderInDepts string      `json:"orderInDepts,omitempty"`
 	Department   []int       `json:"department,omitempty"`
@@ -178,40 +178,38 @@ func (dtc *DingTalkClient) UserIdByCode(code string) (UserIdResponse, error) {
 }
 
 // 通过UnionId获取UserId
-func (dtc *DingTalkClient) UserIdByUnionId(unionId string) (UserIdByUnionIdResponse, error) {
+func (dtc *DingTalkClient) UserIdByUnionId(unionID string) (UserIdByUnionIdResponse, error) {
 	var data UserIdByUnionIdResponse
 	params := url.Values{}
-	params.Add("unionid", unionId)
+	params.Add("unionid", unionID)
 	err := dtc.httpRPC("user/getUseridByUnionid", params, nil, &data)
 	return data, err
 }
 
 // 通过userid 换取 用户详细信息
-func (dtc *DingTalkClient) UserInfoByUserId(userId string, lang interface{}) (UserInfoResponse, error) {
+func (dtc *DingTalkClient) UserInfoByUserId(userID string, lang string, isvGetCompanyInfo *DTIsvGetCompanyInfo) (UserInfoResponse, error) {
 	var data UserInfoResponse
 	params := url.Values{}
-	if lang != nil {
-		params.Add("lang", lang.(string))
-	}
-	params.Add("userid", userId)
-	err := dtc.httpRPC("user/get", params, nil, &data)
+	params.Add("lang", lang)
+	params.Add("userid", userID)
+	err := dtc.httpRPC("user/get", params, nil, &data, isvGetCompanyInfo)
 	return data, err
 }
 
 // 获取部门成员（简化版）
-func (dtc *DingTalkClient) UserSimpleList(departmentId int) (UserSimpleListResponse, error) {
+func (dtc *DingTalkClient) UserSimpleList(departmentID int) (UserSimpleListResponse, error) {
 	var data UserSimpleListResponse
 	params := url.Values{}
-	params.Add("department_id", fmt.Sprintf("%d", departmentId))
+	params.Add("department_id", fmt.Sprintf("%d", departmentID))
 	err := dtc.httpRPC("user/simplelist", params, nil, &data)
 	return data, err
 }
 
 // 获取部门成员（详情版）
-func (dtc *DingTalkClient) UserList(departmentId int) (UserListResponse, error) {
+func (dtc *DingTalkClient) UserList(departmentID int) (UserListResponse, error) {
 	var data UserListResponse
 	params := url.Values{}
-	params.Add("department_id", fmt.Sprintf("%d", departmentId))
+	params.Add("department_id", fmt.Sprintf("%d", departmentID))
 	err := dtc.httpRPC("user/list", params, nil, &data)
 	return data, err
 }
@@ -224,11 +222,11 @@ func (dtc *DingTalkClient) UserAdminList() (UserAdminListResponse, error) {
 }
 
 // 获取管理员的微应用管理权限
-func (dtc *DingTalkClient) UserCanAccessMicroapp(appId string, userId string) (UserCanAccessMicroappResponse, error) {
+func (dtc *DingTalkClient) UserCanAccessMicroapp(appID string, userID string) (UserCanAccessMicroappResponse, error) {
 	var data UserCanAccessMicroappResponse
 	params := url.Values{}
-	params.Add("appId", appId)
-	params.Add("userId", userId)
+	params.Add("appId", appID)
+	params.Add("userId", userID)
 	err := dtc.httpRPC("user/can_access_microap", params, nil, &data)
 	return data, err
 }
@@ -248,10 +246,10 @@ func (dtc *DingTalkClient) UserUpdate(info *UserUpdateRequest) (UserUpdateRespon
 }
 
 // 删除成员
-func (dtc *DingTalkClient) UserDelete(userId string) (UserDeleteResponse, error) {
+func (dtc *DingTalkClient) UserDelete(userID string) (UserDeleteResponse, error) {
 	var data UserDeleteResponse
 	params := url.Values{}
-	params.Add("userid", userId)
+	params.Add("userid", userID)
 	err := dtc.httpRPC("user/delete", params, nil, &data)
 	return data, err
 }
@@ -270,7 +268,7 @@ func (dtc *DingTalkClient) UserBatchDelete(userIdList []string) (UserBatchDelete
 func (dtc *DingTalkClient) UserGetOrgUserCount(onlyActive int) (UserGetOrgUserCountResponse, error) {
 	var data UserGetOrgUserCountResponse
 	params := url.Values{}
-	params.Add("onlyActive", fmt.Sprintf("%s", onlyActive))
+	params.Add("onlyActive", fmt.Sprintf("%d", onlyActive))
 	err := dtc.httpRPC("user/get_org_user_count", params, nil, &data)
 	return data, err
 }
