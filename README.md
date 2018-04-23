@@ -4,7 +4,7 @@ DingTalk Golang SDK https://github.com/icepy
 
 # Feature Overview
 
-- 支持Isv，企业，SSO，SNS免登
+- 支持ISV，企业，SSO，SNS免登
 - 支持对access_token自动续期过期管理（已使用独占锁，请勿再加锁）
 - 支持注册钉钉事件回调
 - 支持对钉钉事件回调消息签名的加解密
@@ -43,37 +43,37 @@ Current SDK TOPAPIURL=https://eco.taobao.com/router/rest
 ~ ᐅ vuepress dev
 ```
 
-# Example
+# Help
+
+**Example**
 
 ```go
 package main
 
 import (
-"os"
-"github.com/icepy/go-dingtalk/src"
+  "os"
+  "github.com/icepy/go-dingtalk/src"
 )
 
 func main() {
-c := getCompanyDingTalkClient()
-c.RefreshCompanyAccessToken()
+  c := getCompanyDingTalkClient()
+  c.RefreshCompanyAccessToken()
 }
 
 func getCompanyDingTalkClient() *dingtalk.DingTalkClient {
-CorpID := os.Getenv("CorpId")
-CorpSecret := os.Getenv("CorpSecret")
-config := &dingtalk.DTCompanyConfig{
-  CorpID:     CorpID,
-  CorpSecret: CorpSecret,
-}
-c := dingtalk.NewDingTalkCompanyClient(config)
-return c
+  CorpID := os.Getenv("CorpId")
+  CorpSecret := os.Getenv("CorpSecret")
+  config := &dingtalk.DTCompanyConfig{
+    CorpID:     CorpID,
+    CorpSecret: CorpSecret,
+  }
+  c := dingtalk.NewDingTalkCompanyClient(config)
+  return c
 }
 
 ```
 
-# Help
-
-**Isv免登讲解**
+**ISV免登讲解**
 
 - 首先调用RefreshSuiteAccessToken刷新suite_access_token
 - 等待钉钉推送临时Code给你
