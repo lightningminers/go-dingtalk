@@ -4,7 +4,7 @@ DingTalk Golang SDK https://github.com/icepy
 
 # Feature Overview
 
-- 支持企业，SSO，SNS免登
+- 支持Isv，企业，SSO，SNS免登
 - 支持对access_token自动续期过期管理（已使用独占锁，请勿再加锁）
 - 支持注册钉钉事件回调
 - 支持对钉钉事件回调消息签名的加解密
@@ -73,7 +73,44 @@ func getCompanyDingTalkClient() *dingtalk.DingTalkClient {
 
 # Help
 
+**Isv免登讲解**
 
+- 首先调用RefreshSuiteAccessToken刷新suite_access_token
+- 等待钉钉推送临时Code给你
+
+```go
+// 假设你在服务端部署了get_code服务
+package main
+
+import (
+    "fmt"
+    "log"
+    "net/http"
+)
+
+func GetCode(w http.ResponseWriter, req *http.Request) {
+		// 获取临时授权code
+		// 并返回{success:true}
+}
+
+func main() {
+    http.HandleFunc("/get_code", GetCode)
+    err := http.ListenAndServe("localhost:8080", nil)
+    if err != nil {
+        log.Fatal("ListenAndServe: ", err.Error())
+    }
+}
+```
+- 调用IsvGetPermanentCode
+- 调用IsvActivateSuite给企业激活套件
+- 调用IsvGetCorpAccessToken获取企业的access_token
+
+至此，你要注意⚠️
+
+- **只有isv的suite_access_token是单例的。**
+- **corp_access_token是不同的，企业a换取来的corp_access_token是1，企业b换取来的corp_access_token是2。**
+- **建议：isv可以用Redis，总之是这种key-value的存储来维护corp_access_token，企业的永久授权码是不会变的。**
+- **在没过期之前，根据永久授权码从map里拿corp_access_token，如果过期了，又走一次流程，换取新的永久授权码，继续存入map，更新key-value系统。**
 
 # Contribute
 
