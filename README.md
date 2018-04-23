@@ -49,24 +49,24 @@ Current SDK TOPAPIURL=https://eco.taobao.com/router/rest
 package main
 
 import (
-	"os"
-	"github.com/icepy/go-dingtalk/src"
+"os"
+"github.com/icepy/go-dingtalk/src"
 )
 
 func main() {
-	c := getCompanyDingTalkClient()
-	c.RefreshCompanyAccessToken()
+c := getCompanyDingTalkClient()
+c.RefreshCompanyAccessToken()
 }
 
 func getCompanyDingTalkClient() *dingtalk.DingTalkClient {
-	CorpID := os.Getenv("CorpId")
-	CorpSecret := os.Getenv("CorpSecret")
-	config := &dingtalk.DTCompanyConfig{
-		CorpID:     CorpID,
-		CorpSecret: CorpSecret,
-	}
-	c := dingtalk.NewDingTalkCompanyClient(config)
-	return c
+CorpID := os.Getenv("CorpId")
+CorpSecret := os.Getenv("CorpSecret")
+config := &dingtalk.DTCompanyConfig{
+  CorpID:     CorpID,
+  CorpSecret: CorpSecret,
+}
+c := dingtalk.NewDingTalkCompanyClient(config)
+return c
 }
 
 ```
@@ -83,34 +83,33 @@ func getCompanyDingTalkClient() *dingtalk.DingTalkClient {
 package main
 
 import (
-    "fmt"
-    "log"
-    "net/http"
+  "fmt"
+  "log"
+  "net/http"
 )
 
 func GetCode(w http.ResponseWriter, req *http.Request) {
-		// 获取临时授权code
-		// 并返回{success:true}
+  // 获取临时授权code
+  // 并返回{success:true}
 }
 
 func main() {
-    http.HandleFunc("/get_code", GetCode)
-    err := http.ListenAndServe("localhost:8080", nil)
-    if err != nil {
-        log.Fatal("ListenAndServe: ", err.Error())
-    }
+  http.HandleFunc("/get_code", GetCode)
+  err := http.ListenAndServe("localhost:8080", nil)
+  if err != nil {
+    log.Fatal("ListenAndServe: ", err.Error())
+  }
 }
 ```
 - 调用IsvGetPermanentCode
 - 调用IsvActivateSuite给企业激活套件
 - 调用IsvGetCorpAccessToken获取企业的access_token
 
-至此，你要注意⚠️
+⚠️至此，你要注意
 
-- **只有isv的suite_access_token是单例的。**
-- **corp_access_token是不同的，企业a换取来的corp_access_token是1，企业b换取来的corp_access_token是2。**
-- **建议：isv可以用Redis，总之是这种key-value的存储来维护corp_access_token，企业的永久授权码是不会变的。**
-- **在没过期之前，根据永久授权码从map里拿corp_access_token，如果过期了，又走一次流程，换取新的永久授权码，继续存入map，更新key-value系统。**
+- 只有isv的suite_access_token是单例
+- corp_access_token是不同的，企业a换取来的corp_access_token是1，企业b换取来的corp_access_token是2
+- 建议：**isv可以用Redis，总之是这种key-value的存储来维护corp_access_token，企业的永久授权码是不会变的。在没过期之前，根据永久授权码从map里拿corp_access_token，如果过期了，又走一次流程，换取新的永久授权码，继续存入map，更新key-value系统。**
 
 # Contribute
 
