@@ -4,7 +4,8 @@ DingTalk Golang SDK https://github.com/icepy
 
 # Feature Overview
 
-- 支持ISV，企业，SSO，SNS免登
+- 支持ISV，企业，SSO，SNS（H5 Web App）免登
+- 支持个人小程序免登
 - 支持对access_token自动续期过期管理（已使用独占锁，请勿再加锁）
 - 支持注册钉钉事件回调
 - 支持对钉钉事件回调消息签名的加解密

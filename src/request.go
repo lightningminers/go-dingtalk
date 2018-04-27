@@ -58,6 +58,16 @@ func (dtc *DingTalkClient) httpRPC(path string, params url.Values, requestData i
 			panic(errors.New("ERROR: *DTIsvGetCompanyInfo Error"))
 		}
 	}
+	if dtc.DevType == "personalMini"{
+		if dtc.SNSAccessToken != "" && path != "sns/getuserinfo" {
+			if params == nil {
+				params = url.Values{}
+			}
+			if params.Get("access_token") == "" {
+				params.Set("access_token", dtc.SNSAccessToken)
+			}
+		}
+	}
 	return dtc.httpRequest("oapi", path, params, requestData, responseData)
 }
 

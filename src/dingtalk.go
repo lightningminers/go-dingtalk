@@ -133,6 +133,6 @@ func NewDingTalkCompanyClient(config *DTConfig) *DingTalkClient {
 	return NewDingTalkClient("company", config)
 }
 
-func NewDingTalkMiniClient() {
-
+func NewDingTalkMiniClient(config *DTConfig) *DingTalkClient {
+	return NewDingTalkClient("personalMini", config)
 }
