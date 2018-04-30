@@ -64,7 +64,7 @@ func main() {
 func getCompanyDingTalkClient() *dingtalk.DingTalkClient {
   CorpID := os.Getenv("CorpId")
   CorpSecret := os.Getenv("CorpSecret")
-  config := &dingtalk.DTCompanyConfig{
+  config := &dingtalk.DTConfig{
     CorpID:     CorpID,
     CorpSecret: CorpSecret,
   }
